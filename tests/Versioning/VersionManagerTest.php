@@ -11,6 +11,8 @@
 
 namespace PHPCR\Tests\Versioning;
 
+use PHPCR\Version\VersionManagerInterface;
+
 /**
  * Testing version manager functions.
  *
@@ -18,6 +20,11 @@ namespace PHPCR\Tests\Versioning;
  */
 class VersionManagerTest extends \PHPCR\Test\BaseCase
 {
+    /**
+     * @var VersionManagerInterface
+     */
+    private $vm;
+
     public static function setupBeforeClass($fixtures = '15_Versioning/base')
     {
         parent::setupBeforeClass($fixtures);
@@ -280,6 +287,17 @@ class VersionManagerTest extends \PHPCR\Test\BaseCase
         $node->setProperty('foo', 'bar2');
 
         $this->vm->restore(true, $version);
+    }
+
+    public function testRestoreIsCheckedIn()
+    {
+        $nodePath = '/tests_version_base/versioned';
+        $version = $this->vm->checkpoint($nodePath);
+        $this->vm->checkout($nodePath);
+        $this->assertTrue($this->vm->isCheckedOut($nodePath));
+
+        $this->vm->restore($nodePath, $version);
+        $this->assertFalse($this->vm->isCheckedOut($nodePath));
     }
 
     // TODO: test restore with removeExisting false and having an id clash
