@@ -11,7 +11,6 @@
 
 namespace PHPCR\Tests\Versioning;
 
-use PHPCR\Util\UUIDHelper;
 use PHPCR\Version\VersionManagerInterface;
 
 /**
