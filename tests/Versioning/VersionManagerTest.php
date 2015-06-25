@@ -370,6 +370,7 @@ class VersionManagerTest extends \PHPCR\Test\BaseCase
         $childNode1->setProperty('foo', 'child1');
         $childNode2 = $node->addNode('childNode2');
         $childNode2->setProperty('foo', 'child2');
+        $childNode3 = $childNode1->addNode('childNode3');
 
         $this->session->save();
         $version = $this->vm->checkin($nodePath);
@@ -377,6 +378,8 @@ class VersionManagerTest extends \PHPCR\Test\BaseCase
         $this->assertCount(2, $node->getNodes());
         $this->assertEquals('child1', $node->getNode('childNode1')->getPropertyValue('foo'));
         $this->assertEquals('child2', $node->getNode('childNode2')->getPropertyValue('foo'));
+
+        $this->assertCount(1, $node->getNode('childNode1')->getNodes());
 
         $this->vm->checkout($nodePath);
 
@@ -388,12 +391,13 @@ class VersionManagerTest extends \PHPCR\Test\BaseCase
         $this->assertCount(1, $node->getNodes());
         $this->assertEquals('child1', $node->getNode('childNode2')->getPropertyValue('foo'));
 
-        $this->vm->restore(false, $version);
+        $this->vm->restore(true, $version);
         $node = $this->session->getNode($nodePath);
 
         $this->assertCount(2, $node->getNodes());
         $this->assertEquals('child1', $node->getNode('childNode1')->getPropertyValue('foo'));
         $this->assertEquals('child2', $node->getNode('childNode2')->getPropertyValue('foo'));
+        $this->assertCount(1, $node->getNode('childNode1')->getNodes());
     }
 
     // TODO: test restore with removeExisting false and having an id clash
